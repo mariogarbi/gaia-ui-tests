@@ -467,18 +467,27 @@ class GaiaTestCase(MarionetteTestCase):
                 os.makedirs(debug_path)
 
             # screenshot
-            with open(os.path.join(debug_path, '%s_screenshot.png' % test_name), 'w') as f:
-                # TODO: Bug 818287 - Screenshots include data URL prefix
-                screenshot = self.marionette.screenshot()[22:]
-                f.write(base64.decodestring(screenshot))
+            try:
+                with open(os.path.join(debug_path, '%s_screenshot.png' % test_name), 'w') as f:
+                    # TODO: Bug 818287 - Screenshots include data URL prefix
+                    screenshot = self.marionette.screenshot()[22:]
+                    f.write(base64.decodestring(screenshot))
+            except:
+                print('Teardown failed while grabbing a screenshot')
 
             # page source
-            with open(os.path.join(debug_path, '%s_source.txt' % test_name), 'w') as f:
-                f.write(self.marionette.page_source.encode('utf-8'))
+            try:
+                with open(os.path.join(debug_path, '%s_source.txt' % test_name), 'w') as f:
+                    f.write(self.marionette.page_source.encode('utf-8'))
+            except:
+                print('Teardown failed while grabbing the page source')
 
             # settings
-            with open(os.path.join(debug_path, '%s_settings.json' % test_name), 'w') as f:
-                f.write(json.dumps(self.data_layer.all_settings))
+            try:
+                with open(os.path.join(debug_path, '%s_settings.json' % test_name), 'w') as f:
+                    f.write(json.dumps(self.data_layer.all_settings))
+            except:
+                print('Teardown failed while grabbing the settings')
 
         self.lockscreen = None
         self.apps = None

@@ -473,27 +473,26 @@ class GaiaTestCase(MarionetteTestCase):
                     screenshot = self.marionette.screenshot()[22:]
                     f.write(base64.decodestring(screenshot))
             except:
-                print('Teardown failed while grabbing a screenshot')
+                print 'Failed to capture screenshot'
 
             # page source
             try:
                 with open(os.path.join(debug_path, '%s_source.txt' % test_name), 'w') as f:
                     f.write(self.marionette.page_source.encode('utf-8'))
             except:
-                print('Teardown failed while grabbing the page source')
+                print 'Failed to capture page source'
 
             # settings
             try:
                 with open(os.path.join(debug_path, '%s_settings.json' % test_name), 'w') as f:
                     f.write(json.dumps(self.data_layer.all_settings))
             except:
-                print('Teardown failed while grabbing the settings')
+                print 'Failed to capture settings'
 
         self.lockscreen = None
         self.apps = None
         self.data_layer = None
         MarionetteTestCase.tearDown(self)
-
 
 class Keyboard(object):
     _language_key = '-3'

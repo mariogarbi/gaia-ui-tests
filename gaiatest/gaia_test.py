@@ -511,8 +511,25 @@ class Keyboard(object):
 
     _button_locator = ('css selector', 'button.keyboard-key[data-keycode="%s"]')
 
+    # default timeout in seconds for the wait_for methods
+    _default_timeout = 30
+
     def __init__(self, marionette):
         self.marionette = marionette
+
+    def wait_for_element_displayed(self, by, locator, timeout=_default_timeout):
+        timeout = float(timeout) + time.time()
+
+        while time.time() < timeout:
+            time.sleep(0.5)
+            try:
+                if self.marionette.find_element(by, locator).is_displayed():
+                    break
+            except NoSuchElementException:
+                pass
+        else:
+            raise TimeoutException(
+                'Element %s not visible before timeout' % locator)
 
     def _switch_to_keyboard(self):
         self.marionette.switch_to_frame()
@@ -546,18 +563,23 @@ class Keyboard(object):
             # alpha is in on keyboard
             if val.isalpha():
                 if self.is_element_present(*self._key_locator(self._alpha_key)):
+                    self.wait_for_element_displayed(*self._key_locator(self._alpha_key))
                     self._tap(self._alpha_key)
                 if not self.is_element_present(*self._key_locator(val)):
+                    self.wait_for_element_displayed(*self._key_locator(self._upper_case_key))
                     self._tap(self._upper_case_key)
             # numbers and symbols are in another keyboard
             else:
                 if self.is_element_present(*self._key_locator(self._numeric_sign_key)):
+                    self.wait_for_element_displayed(*self._key_locator(self._numeric_sign_key))
                     self._tap(self._numeric_sign_key)
                 if not self.is_element_present(*self._key_locator(val)):
+                    self.wait_for_element_displayed(*self._key_locator(self._alt_key))
                     self._tap(self._alt_key)
 
             # after switching to correct keyboard, tap/click if the key is there
             if self.is_element_present(*self._key_locator(val)):
+                self.wait_for_element_displayed(*self._key_locator(val))
                 self._tap(val)
             else:
                 assert False, 'Key %s not found on the keyboard' % val
